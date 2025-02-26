@@ -56,7 +56,7 @@ class Pipeline:
                                      description="Default maximum tokens for response generation")
         DEFAULT_REASONING_EFFORT: str = Field(default="none",
                                           description="Default reasoning effort (none, low, medium, high, max)")
-        DEFAULT_TEMPERATURE: float = Field(default=0.8,
+        DEFAULT_TEMPERATURE: float = Field(default=1.0,
                                         description="Default temperature for response generation")
 
     def __init__(self):
