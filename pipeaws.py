@@ -6,7 +6,7 @@ version: 1.2
 license: MIT
 description: A pipeline for generating text and processing images using AWS Bedrock for Anthropic Claude models with multiple reasoning efforts.
 requirements: boto3
-environment_variables: AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_REGION, DEFAULT_MAX_TOKENS
+environment_variables: AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_REGION, MAX_TOKENS
 """
 
 import os
@@ -35,10 +35,10 @@ except ImportError:
 # Mapping for reasoning effort budget tokens
 REASONING_EFFORT_BUDGET_TOKEN_MAP = {
     "none": None,
-    "low": 1024,
-    "medium": 4096,
-    "high": 16384,
-    "max": 32768,
+    "low": 1_000,
+    "medium": 8_000,
+    "high": 32_000,
+    "max": 64_000,
 }
 
 class Pipeline:
@@ -52,12 +52,12 @@ class Pipeline:
                                  description="AWS access key for authentication")
         AWS_SECRET_KEY: str = Field(default_factory=lambda: os.getenv('AWS_SECRET_KEY', ''),
                                  description="AWS secret key for authentication", exclude=True)
-        DEFAULT_MAX_TOKENS: int = Field(default_factory=lambda: int(os.getenv('DEFAULT_MAX_TOKENS', '4096')),
-                                     description="Default maximum tokens for response generation")
-        DEFAULT_REASONING_EFFORT: str = Field(default="none",
-                                          description="Default reasoning effort (none, low, medium, high, max)")
-        DEFAULT_TEMPERATURE: float = Field(default=1.0,
-                                        description="Default temperature for response generation")
+        MAX_TOKENS: int = Field(default_factory=lambda: int(os.getenv('MAX_TOKENS', '128_000')),
+                                     description="Maximum tokens for response generation")
+        REASONING_EFFORT: str = Field(default="none",
+                                          description="Reasoning effort (none, low, medium, high, max)")
+        TEMPERATURE: float = Field(default=1.0,
+                                        description="Temperature for response generation")
 
     def __init__(self):
         self.type = "manifold"
@@ -183,8 +183,8 @@ class Pipeline:
             payload = {
                 "anthropic_version": "bedrock-2023-05-31",
                 "messages": processed_messages,
-                "max_tokens": body.get("max_tokens", self.valves.DEFAULT_MAX_TOKENS),
-                "temperature": body.get("temperature", self.valves.DEFAULT_TEMPERATURE),
+                "max_tokens": body.get("max_tokens", self.valves.MAX_TOKENS),
+                "temperature": body.get("temperature", self.valves.TEMPERATURE),
                 "top_k": body.get("top_k", 40),
                 "top_p": body.get("top_p", 0.9),
                 "stop_sequences": body.get("stop", []),
@@ -194,7 +194,7 @@ class Pipeline:
 
             # Handle reasoning effort for models supporting thinking (e.g., Claude 3.7)
             supports_thinking = "claude-3-7" in model_id
-            reasoning_effort = body.get("reasoning_effort", self.valves.DEFAULT_REASONING_EFFORT)
+            reasoning_effort = body.get("reasoning_effort", self.valves.REASONING_EFFORT)
             budget_tokens = REASONING_EFFORT_BUDGET_TOKEN_MAP.get(reasoning_effort)
 
             if not budget_tokens and reasoning_effort not in REASONING_EFFORT_BUDGET_TOKEN_MAP.keys():
