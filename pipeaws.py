@@ -87,11 +87,6 @@ class Pipeline:
     def get_anthropic_models(self):
         """Return available Anthropic models on AWS Bedrock"""
         return [
-            {"id": "anthropic.claude-3-haiku-20240307-v1:0", "name": "claude-3-haiku"},
-            {"id": "anthropic.claude-3-opus-20240229-v1:0", "name": "claude-3-opus"},
-            {"id": "anthropic.claude-3-sonnet-20240229-v1:0", "name": "claude-3-sonnet"},
-            {"id": "anthropic.claude-3-5-haiku-20241022-v1:0", "name": "claude-3.5-haiku"},
-            {"id": "anthropic.claude-3-5-sonnet-20241022-v1:0", "name": "claude-3.5-sonnet"},
             {"id": "us.anthropic.claude-3-7-sonnet-20250219-v1:0", "name": "claude-3.7-sonnet (inference profile)"},
         ]
 
