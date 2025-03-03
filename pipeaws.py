@@ -54,7 +54,7 @@ class Pipeline:
                                  description="AWS secret key for authentication", exclude=True)
         MAX_TOKENS: int = Field(default_factory=lambda: int(os.getenv('MAX_TOKENS', '128_000')),
                                      description="Maximum tokens for response generation")
-        REASONING_EFFORT: str = Field(default="none",
+        REASONING_EFFORT: str = Field(default="high",
                                           description="Reasoning effort (none, low, medium, high, max)")
         TEMPERATURE: float = Field(default=1.0,
                                         description="Temperature for response generation")
